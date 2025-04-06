@@ -1,22 +1,31 @@
-from src.track_analysis import load_track
+import numpy as np
 from src.car_agent import Car
-from src.simulation import simulate_race
-from src.genetic_algorithm import compute_fitness, select_top, generate_new_population
-import cv2
+from src.track_analysis import load_track
+from src.genetic_algorithm import generate_new_population, select_top
+from src.multi_simulation import simulate_generation
 
-track = load_track("data/interlagos.png")
-cv2.imshow("Track Mask", track * 255)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+# 📁 Caminho para a imagem do traçado
+image_path = "data/interlagos.png"
+track = load_track(image_path)
 
-population = [Car() for _ in range(20)]
+# ⚙️ Parâmetros
+num_cars = 20
+num_generations = 50
+dna_length = 150
 
-for generation in range(10):
-    print(f"\nGeneration {generation}")
-    for car in population:
-        simulate_race(population[0], track, visualize=True, background_path="data/interlagos.png")
-        car.fitness = compute_fitness(car)
-        print(f"Time: {car.time:.2f} | Penalties: {car.penalties} | Fitness: {car.fitness:.4f}")
+population = [Car(dna=Car.generate_dna(size=dna_length)) for _ in range(num_cars)]
 
-    top_cars = select_top(population, k=5)
-    population = generate_new_population(top_cars, n=20)
+for generation in range(num_generations):
+    print(f"\n🧬 Generation {generation + 1}/{num_generations}")
+
+    simulate_generation(population, track, background_path=image_path, wait_at_end=False)
+
+    population.sort(key=lambda c: c.fitness, reverse=True)
+
+    best = population[0]
+    print(f"\n🏆 Best of Generation {generation + 1}: {best.distance:.2f} m | Penalties: {best.penalties} | Fitness: {best.fitness:.2f}")
+
+    top = select_top(population, k=5)
+    new_population = generate_new_population(top, n=num_cars - 1)
+    new_population.append(best) 
+    population = new_population

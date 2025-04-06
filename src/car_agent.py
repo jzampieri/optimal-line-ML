@@ -1,12 +1,19 @@
 import numpy as np
 
 class Car:
-    def __init__(self, dna=None):
-        self.dna = dna if dna is not None else self.generate_dna()
+    def __init__(self, dna, max_speed=5.0):
+        self.dna = dna
+        self.max_speed = max_speed
+
+        self.position = None
+        self.angle = 0.0
+        self.velocity = 0.0
         self.time = 0
         self.penalties = 0
         self.crashed = False
-        self.fitness = 0
+        self.distance = 0.0
+        self.fitness = 0.0
 
-    def generate_dna(self, size=50):
-        return np.random.uniform(-1, 1, size=(size, 2))
+    @staticmethod
+    def generate_dna(size=150):
+        return np.random.uniform(-0.2, 0.2, size=(size, 2))
