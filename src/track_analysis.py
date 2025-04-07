@@ -5,18 +5,14 @@ def load_track(image_path):
     img = cv2.imread(image_path)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    _, base_mask = cv2.threshold(gray, 50, 255, cv2.THRESH_BINARY_INV)
+    _, mask = cv2.threshold(gray, 240, 255, cv2.THRESH_BINARY)
 
-    inner_mask = base_mask.copy()
+    track_mask = np.zeros_like(mask, dtype=np.uint8)
+    track_mask[mask == 255] = 1
 
-    kernel_outer = np.ones((25, 25), np.uint8)
-    outer_mask = cv2.dilate(base_mask, kernel_outer, iterations=1)
+    return track_mask
 
-    final_mask = np.zeros_like(gray, dtype=np.uint8)
-
-    final_mask[inner_mask == 255] = 1
-
-    penalty_zone = ((outer_mask == 255) & (inner_mask == 0))
-    final_mask[penalty_zone] = 2
-
-    return final_mask
+def get_start_and_end_points():
+    start_point = np.array([150, 680], dtype=np.float32)
+    end_point = np.array([700, 120], dtype=np.float32)
+    return start_point, end_point
