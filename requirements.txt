@@ -1,3 +1,4 @@
+pygame
 numpy
 opencv-python
 matplotlib
